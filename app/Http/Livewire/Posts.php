@@ -22,6 +22,7 @@ class Posts extends Component
         // dd($this->posts);
         return view('livewire.posts', [
             'posts' => Post::where('user_id', auth()->user()->id)
+                            ->latest()
                             ->paginate(5)
         ]);
     }

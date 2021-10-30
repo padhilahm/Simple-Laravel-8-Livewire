@@ -1,5 +1,15 @@
 <div>
     <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-6 mb-4">
+            <form>
+                <input wire:model='search' class="form-control" type="search" placeholder="Search">
+                {{-- <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button> --}}
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
         @foreach ($posts as $post)
         <div class="col-md-4 mb-3">
             <div class="card" style="width: 18rem;">
@@ -8,10 +18,10 @@
                     <h5 class="card-title">{{ $post->title }}</h5>
                     <p>
                         <small class="text-muted">
-                                <p>By. <a href="/posts?author={{ $post->user->id }}"
-                                        class="text-decoration-none">{{ $post->user->name }}</a>
-                                    {{ $post->created_at->diffForHumans() }}</p>
-                            </small>
+                            <p>By. <a href="/posts?author={{ $post->user->id }}" class="text-decoration-none">{{
+                                    $post->user->name }}</a>
+                                {{ $post->created_at->diffForHumans() }}</p>
+                        </small>
                     </p>
                     <p class="card-text">{{ Str::substr($post->body, 0, 100) }}...</p>
                     <a href="/post?ids={{ $post->id }}" class="btn btn-primary">Read More</a>

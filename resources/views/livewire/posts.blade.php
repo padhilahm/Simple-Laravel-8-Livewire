@@ -16,8 +16,8 @@
             <tr>
                 <th width="10">No.</th>
                 <th>Title</th>
-                <th>Author</th>
                 <th>Body</th>
+                <th>Date</th>
                 <th width="150px">Action</th>
             </tr>
         </thead>
@@ -29,8 +29,8 @@
             <tr>
                 <td>{{ $no }}</td>
                 <td>{{ $post->title }}</td>
-                <td>{{ $post->user->name }}</td>
                 <td>{{ Str::substr($post->body, 0, 100) }}...</td>
+                <td>{{ $post->created_at }}</td>
                 <td>
                 <button wire:click="edit({{ $post->id }})" class="btn btn-primary btn-sm">Edit</button>
                     <button wire:click="delete({{ $post->id }})" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure!') || event.stopImmediatePropagation()">Delete</button>

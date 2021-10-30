@@ -10,13 +10,13 @@ class Users extends Component
 {
     public $name, $email, $user_id, $password, $mode = 'Add', $status = false;
     public $updateMode = false;
-    
+
     public $search;
- 
+
     protected $queryString = ['search'];
 
     use WithPagination;
- 
+
     protected $paginationTheme = 'bootstrap';
 
     public function render()
@@ -24,9 +24,9 @@ class Users extends Component
         // $posts = Post::paginate(10);
         // dd($this->posts);
         return view('livewire.users', [
-            'users' => User::where('email', 'like', '%'.$this->search.'%')
-                            ->where('name', 'like', '%'.$this->search.'%')
-                            ->paginate(5)
+            'users' => User::where('email', 'like', '%' . $this->search . '%')
+                ->where('name', 'like', '%' . $this->search . '%')
+                ->paginate(5)
         ]);
     }
 
@@ -106,7 +106,6 @@ class Users extends Component
         session()->flash('message', 'User Updated');
 
         $this->resetInputFields();
-        
     }
 
     public function delete($id)

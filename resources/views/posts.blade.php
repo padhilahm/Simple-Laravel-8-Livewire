@@ -6,7 +6,7 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header">
-                        <h2>CRUD Posts</h2>
+                        <h2>Posts</h2>
                     </div>
                     <div class="card-body">
                         Welcom, {{ auth()->user()->name }}

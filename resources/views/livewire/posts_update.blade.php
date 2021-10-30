@@ -8,6 +8,8 @@
     <div class="form-group">
         <label for="exampleFormControlInput2">Body:</label>
         <textarea type="email" class="form-control" id="exampleFormControlInput2" wire:model="body" placeholder="Enter Body"></textarea>
+        {{-- <input id="x" type="hidden" value="{{ $this->body }}">
+        <trix-editor input="x"></trix-editor> --}}
         @error('body') <span class="text-danger">{{ $message }}</span>@enderror
     </div>
     <button wire:click.prevent="update()" class="btn btn-dark">Update</button>
