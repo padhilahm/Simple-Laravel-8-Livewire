@@ -44,6 +44,9 @@
                 <li class="nav-item {{ Request::is('users*') ? 'active' : '' }}">
                     <a class="nav-link" href="/users">Users</a>
                 </li>
+                <li class="nav-item {{ Request::is('categories*') ? 'active' : '' }}">
+                    <a class="nav-link" href="/categories">Categories</a>
+                </li>
                 @endcan
 
                 <li>

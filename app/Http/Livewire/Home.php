@@ -10,23 +10,31 @@ class Home extends Component
 {
     use WithPagination;
     public $search;
+    public $searchActive = false;
     protected $queryString = ['search'];
 
     protected $paginationTheme = 'bootstrap';
     
     public function render()
     {
-        return view('livewire.home', [
-            'posts' => Post::with('user')
-                    ->where('title', 'like', '%' . $this->search . '%')
-                    ->latest()->paginate(6)
-        ]);
+        if ($this->searchActive) {
+            $this->searchActive = false;
+            return view('livewire.home', [
+                'posts' => Post::with('user')
+                        ->where('title', 'like', '%' . $this->search . '%')
+                        ->latest()->paginate(6)
+            ]);
+            
+        }else{
+            return view('livewire.home', [
+                'posts' => Post::with('user')
+                        ->latest()->paginate(6)
+            ]);
+        }
     }
 
     public function search()
     {
-        return view('livewire.home', [
-            'posts' => Post::with('user')->latest()->paginate(6)
-        ]);
+        $this->searchActive = true;
     }
 }

@@ -10,7 +10,7 @@
         {{ session('message2') }}
     </div>
     @endif
-    <form>
+    <form wire:submit.prevent='auth'>
         <div class="form-group">
             <label for="exampleInputEmail1">Email address</label>
             <input type="text" class="form-control" wire:model="email" aria-describedby="emailHelp"
@@ -26,7 +26,8 @@
             <span class="text-danger">{{ $message }}</span>
             @enderror
         </div>
-        <button wire:click.prevent="auth" type="submit" class="btn btn-primary">Login</button>
+        <button type="submit" class="btn btn-primary">Login</button>
+        {{-- <button wire:click.prevent="auth" type="submit" class="btn btn-primary">Login</button> --}}
     </form>
     <div class="text-center">
         No have account, <a href="/register">Regsiter here</a>

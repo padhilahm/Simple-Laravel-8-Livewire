@@ -25,7 +25,7 @@ class Users extends Component
         // dd($this->posts);
         return view('livewire.users', [
             'users' => User::where('email', 'like', '%' . $this->search . '%')
-                ->where('name', 'like', '%' . $this->search . '%')
+                ->orWhere('name', 'like', '%' . $this->search . '%')
                 ->paginate(5)
         ]);
     }

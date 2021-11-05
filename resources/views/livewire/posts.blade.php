@@ -1,15 +1,23 @@
 <div>
+
     @if (session()->has('message'))
         <div class="alert alert-success">
             {{ session('message') }}
         </div>
     @endif
   
-    @if($updateMode)
+    @if($updateMode === 1)
         @include('livewire.posts_update')
-    @else
+    @elseif($updateMode === 0)
         @include('livewire.posts_create')
+    @else
+        <button wire:click='add' class="btn btn-success">Add Post</button>
     @endif
+
+
+    {{-- <div wire:poll.keep-alive.1000ms='foo'>
+        {{ $updateMode }}
+    </div> --}}
   
     <table class="table table-bordered mt-5">
         <thead>

@@ -42,4 +42,8 @@ Route::middleware(['admin'])->group(function () {
         return view('users');
     });
 
+    Route::get('/categories', function () {
+        return view('categories');
+    });
+
 });
