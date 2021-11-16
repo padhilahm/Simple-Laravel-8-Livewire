@@ -2,38 +2,41 @@
 
 namespace App\Http\Livewire;
 
-use App\Models\Category;
 use App\Models\Post;
-use Illuminate\Support\Facades\Storage;
-// use Illuminate\Contracts\Cache\Store;
 use Livewire\Component;
+use App\Models\Category;
+use Illuminate\Http\Request;
 use Livewire\WithPagination;
+use App\Services\PostService;
 use Livewire\WithFileUploads;
+use App\Services\CategoryService;
+use App\Http\Requests\PostRequest;
+use Illuminate\Support\Facades\Storage;
 
 
 class Posts extends Component
 {
-    public $title, $body, $post_id, $oldImage;
-    public $photo, $category;
-    public $updateMode = false;
+    protected PostService $postService;
+    protected CategoryService $categoryService;
+
+    protected $paginationTheme = 'bootstrap';
+    public $title, $body, $postId, $oldImage, $photo, $category, $updateMode = false;
+    public $trixId;
 
     use WithPagination;
-
     use WithFileUploads;
- 
-    protected $paginationTheme = 'bootstrap';
 
+    public function boot(PostService $postService, CategoryService $categoryService)
+    {
+        $this->postService = $postService;
+        $this->categoryService = $categoryService;
+    }
+ 
     public function render()
     {
-        // $posts = Post::paginate(10);
-        // dd($this->posts);
-        // $this->photo = '';
-        // $this->resetInputFields();
         return view('livewire.posts', [
-            'posts' => Post::where('user_id', auth()->user()->id)
-                            ->latest()
-                            ->paginate(5),
-            'categories' => Category::all()
+            'posts' => $this->postService->getAll(),
+            'categories' => $this->categoryService->getAll()
         ]);
     }
 
@@ -48,41 +51,29 @@ class Posts extends Component
 
     public function store()
     {
-        $this->validate([
+        $request = $this->validate([
             'title' => 'required',
             'body' => 'required',
             'photo' => 'image|file|max:1024',
             'category' => 'required'
         ]);
 
-        if ($this->photo) {
-            $photo = $this->photo->store('photos');
-        }else{
-            $photo = NULL;
-        }
-
-        Post::create([
-            'user_id' => auth()->user()->id,
-            'category_id' => $this->category,
-            'title' => $this->title,
-            'body' => $this->body,
-            'photo' => $photo
-        ]);
+        $this->postService->create((object)$request);
         
         session()->flash('message', 'Post Created');
         $this->resetInputFields();
+        $this->updateMode = false;
     }
 
     public function edit($id)
     {
-        $post = Post::findOrFail($id);
-        $this->post_id = $id;
-        $this->title = $post->title;
-        $this->body = $post->body;
-        $this->oldImage = $post->photo;
-        $this->category = $post->category_id;
+        $post = $this->postService->edit($id);
+        $this->postId = $id;
+        $this->title = $post['title'];
+        $this->body = $post['body'];
+        $this->oldImage = $post['photo'];
+        $this->category = $post['categoryId'];
         $this->photo = '';
-
         $this->updateMode = 1;
     }
 
@@ -100,52 +91,26 @@ class Posts extends Component
 
     public function update()
     {
-        $this->validate([
+        $request = $this->validate([
             'title' => 'required',
             'body' => 'required',
             'photo' => 'image|file|max:1024',
             'category' => 'required'
         ]);
 
-        if ($this->photo) {
-            $photo = $this->photo->store('photos');
-            if($this->oldImage){
-                Storage::delete($this->oldImage);
-            }
-            $post = Post::find($this->post_id);
-            $post->update([
-                'title' => $this->title,
-                'body' => $this->body,
-                'user_id' => auth()->user()->id,
-                'photo' => $photo,
-                'category_id' => $this->category
-            ]);
-        }else{
-            $post = Post::find($this->post_id);
-            $post->update([
-                'title' => $this->title,
-                'body' => $this->body,
-                'user_id' => auth()->user()->id,
-                'category_id' => $this->category
-            ]);
-        }
-        // $photo = $this->photo->store('photos');
+        $this->postService->update((object)$request, $this->postId);
 
         $this->updateMode = 3;
 
         session()->flash('message', 'Post Updated');
 
         $this->resetInputFields();
+        $this->updateMode = false;
     }
 
     public function delete($id)
     {
-        $post = Post::find($id);
-        $post->delete();
-        if ($post->photo) {
-            Storage::delete($post->photo);
-        }
-        Storage::delete('$this->oldImage');
+        $this->postService->delete($id);
         session()->flash('message', 'Post deleted');
     }
 

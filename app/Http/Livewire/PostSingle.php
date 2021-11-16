@@ -2,23 +2,34 @@
 
 namespace App\Http\Livewire;
 
-use App\Models\Comment;
 use App\Models\Post;
+use App\Models\Comment;
 use Livewire\Component;
+use App\Services\PostService;
+use App\Services\CommentService;
 
 class PostSingle extends Component
 {
-    public $ids, $comment;
+    public $ids, $comment, $postId;
     public $activeComment = false;
     public $name;
  
     protected $queryString = ['ids'];
 
+    protected PostService $postService;
+    protected CommentService $commentService;
+
+    public function boot(PostService $postService, CommentService $commentService)
+    {
+        $this->postService = $postService;
+        $this->commentService = $commentService;
+    }
+
     public function render()
     {
         return view('livewire.post-single', [
-            'post' => Post::where('id', $this->ids)->first(),
-            'comments' => Post::find($this->ids)->comments
+            'post' => $this->postService->getById($this->ids),
+            'comments' => $this->postService->getCommentByPostId($this->ids)
         ]);
     }
 
@@ -31,17 +42,16 @@ class PostSingle extends Component
 
     public function submitComment()
     {
-        // $this->name = auth()->user()->name;
-
         $this->validate([
-            'comment' => 'required'
+            'comment' => 'required',
         ]);
 
-        Comment::create([
+        $data = [
             'comment' => $this->comment,
-            'user_id' => auth()->user()->id,
-            'post_id' => $this->ids
-        ]);
+            'postId' => $this->ids
+        ];
+
+        $this->commentService->create((object)$data);
 
         $this->comment = '';
         $this->activeComment = false;
@@ -49,7 +59,6 @@ class PostSingle extends Component
 
     public function delete($id)
     {
-        $post = Comment::find($id);
-        $post->delete();
+        $this->commentService->delete($id);
     }
 }

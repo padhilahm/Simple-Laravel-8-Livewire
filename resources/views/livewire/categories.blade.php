@@ -31,7 +31,7 @@
                 <div class="modal-body">
                     <form>
                         @if ($updateMode)
-                        <input type="hidden" wire:model="category_id">
+                        <input type="hidden" wire:model="categoryId">
                         @endif
                         <div class="form-group">
                             <label for="exampleFormControlInput1">Name:</label>

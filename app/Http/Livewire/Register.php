@@ -3,11 +3,19 @@
 namespace App\Http\Livewire;
 
 use App\Models\User;
+use App\Services\UserService;
 use Livewire\Component;
 
 class Register extends Component
 {
     public $name, $email, $password;
+
+    protected UserService $userService;
+
+    public function boot(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
 
     public function render()
     {
@@ -16,17 +24,14 @@ class Register extends Component
 
     public function register()
     {
-        $this->validate([
+        $request = $this->validate([
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required'
         ]);
 
-        User::create([
-            'name' => $this->name,
-            'email' => $this->email,
-            'password' => bcrypt($this->password)
-        ]);
+        $this->userService->create((object)$request);
+
         session()->flash('message2', 'Akun berhasil dibuat silahkan login');
         return redirect('login');
     }

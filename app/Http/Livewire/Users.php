@@ -2,13 +2,13 @@
 
 namespace App\Http\Livewire;
 
-use App\Models\User;
+use App\Services\UserService;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class Users extends Component
 {
-    public $name, $email, $user_id, $password, $mode = 'Add', $status = false;
+    public $name, $email, $userId, $password, $mode = 'Add', $status = false;
     public $updateMode = false;
 
     public $search;
@@ -19,14 +19,17 @@ class Users extends Component
 
     protected $paginationTheme = 'bootstrap';
 
+    protected UserService $userService;
+
+    public function boot(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     public function render()
     {
-        // $posts = Post::paginate(10);
-        // dd($this->posts);
         return view('livewire.users', [
-            'users' => User::where('email', 'like', '%' . $this->search . '%')
-                ->orWhere('name', 'like', '%' . $this->search . '%')
-                ->paginate(5)
+            'users' => $this->userService->getWithSearch($this->search)
         ]);
     }
 
@@ -39,17 +42,13 @@ class Users extends Component
 
     public function store()
     {
-        $validatedDate = $this->validate([
+        $request = $this->validate([
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required'
         ]);
-
-        User::create([
-            'name' => $this->name,
-            'email' => $this->email,
-            'password' => bcrypt($this->password)
-        ]);
+        
+        $this->userService->create((object)$request);
 
         session()->flash('message', 'User Aded');
         $this->resetInputFields();
@@ -64,8 +63,8 @@ class Users extends Component
             'password' => ''
         ]);
 
-        $post = User::findOrFail($id);
-        $this->user_id = $id;
+        $post = $this->userService->edit($id);
+        $this->userId = $id;
         $this->name = $post->name;
         $this->email = $post->email;
         $this->password = '';
@@ -87,18 +86,13 @@ class Users extends Component
 
     public function update()
     {
-        $validatedDate = $this->validate([
+        $request = $this->validate([
             'name' => 'required',
             'email' => 'required|email',
             'password' => 'required'
         ]);
-
-        $post = User::find($this->user_id);
-        $post->update([
-            'name' => $this->name,
-            'email' => $this->email,
-            'password' => bcrypt($this->password)
-        ]);
+        
+        $this->userService->update((object)$request, $this->userId);
 
         $this->updateMode = false;
         $this->status = true;
@@ -110,7 +104,7 @@ class Users extends Component
 
     public function delete($id)
     {
-        User::find($id)->delete();
+        $this->userService->delete($id);
         session()->flash('message', 'User deleted');
     }
 }

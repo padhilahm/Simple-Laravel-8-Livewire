@@ -3,13 +3,14 @@
 namespace App\Http\Livewire;
 
 use App\Models\Category;
+use App\Services\CategoryService;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 
 class Categories extends Component
 {
-    public $name, $category_id, $mode = 'Add', $status = false;
+    public $name, $categoryId, $mode = 'Add', $status = false;
     public $updateMode = false;
 
     public $search;
@@ -20,10 +21,17 @@ class Categories extends Component
 
     protected $paginationTheme = 'bootstrap';
 
+    protected CategoryService $categoryService;
+
+    public function boot(CategoryService $categoryService)
+    {
+        $this->categoryService = $categoryService;
+    }
+
     public function render()
     {
         return view('livewire.categories', [
-            'categories' => Category::paginate(6)
+            'categories' => $this->categoryService->getWithPaginate()
         ]);
     }
 
@@ -34,13 +42,11 @@ class Categories extends Component
 
     public function store()
     {
-        $validatedDate = $this->validate([
+        $request = $this->validate([
             'name' => 'required'
         ]);
 
-        Category::create([
-            'name' => $this->name
-        ]);
+        $this->categoryService->create((object)$request);
 
         session()->flash('message', 'Category Aded');
         $this->resetInputFields();
@@ -53,8 +59,8 @@ class Categories extends Component
             'name' => ''
         ]);
 
-        $category = Category::findOrFail($id);
-        $this->category_id = $id;
+        $category = $this->categoryService->edit($id);
+        $this->categoryId = $id;
         $this->name = $category->name;
         $this->mode = 'Edit';
 
@@ -72,14 +78,11 @@ class Categories extends Component
 
     public function update()
     {
-        $validatedDate = $this->validate([
+        $request = $this->validate([
             'name' => 'required'
         ]);
 
-        $category = Category::find($this->category_id);
-        $category->update([
-            'name' => $this->name
-        ]);
+        $this->categoryService->update((object)$request, $this->categoryId);
 
         $this->updateMode = false;
         $this->status = true;
@@ -91,7 +94,7 @@ class Categories extends Component
 
     public function delete($id)
     {
-        Category::find($id)->delete();
+        $this->categoryService->delete($id);
         session()->flash('message', 'User deleted');
     }
 }
